@@ -1,0 +1,139 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/* ============================================================
+   ENUMS
+============================================================ */
+
+enum Role {
+  GUEST
+  OPERATOR
+  ADMIN
+}
+
+enum ReservationStatus {
+  PENDING      // creada, a confirmar o pagar
+  PAID         // pagada (Stripe u otro)
+  CONFIRMED    // confirmada por el hotel
+  CHECKED_IN   // huésped ingresó
+  CHECKED_OUT  // huésped salió
+  CANCELED     // cancelada
+}
+
+enum InquiryStatus {
+  NEW          // nueva, sin responder
+  IN_PROGRESS  // en proceso
+  ANSWERED     // respondida
+  CLOSED       // cerrada
+}
+
+/* ============================================================
+   MODELOS
+============================================================ */
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  name         String
+  passwordHash String
+  role         Role          @default(GUEST)
+  phone        String?
+  address      String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  reservations Reservation[]
+  inquiries    Inquiry[]
+}
+
+model Room {
+  id            String        @id @default(uuid())
+  name          String
+  capacity      Int
+  pricePerNight Decimal       @db.Decimal(10, 2)
+  description   String?
+  imageUrl      String?
+  isActive      Boolean       @default(true) // abrir/cerrar habitación
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  reservations  Reservation[]
+}
+
+model Reservation {
+  id             String            @id @default(uuid())
+
+  // Código legible (H2025-0001). Se genera en backend, por eso sin default.
+  code           String            @unique
+
+  roomId         String
+  userId         String?
+
+  // Datos del huésped (requeridos)
+  guestName      String
+  guestEmail     String
+  guestPhone     String
+
+  // Documentación opcional
+  documentType   String?
+  documentNumber String?
+
+  // Fechas (camelCase)
+  checkIn        DateTime
+  checkOut       DateTime
+
+  guests         Int               @default(1)
+  total          Decimal           @db.Decimal(12, 2)
+  status         ReservationStatus @default(PENDING)
+
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  room Room  @relation(fields: [roomId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
+
+  // Índices útiles
+  @@index([roomId, checkIn, checkOut])
+  @@index([userId])
+}
+
+model Inquiry {
+  id         String        @id @default(uuid())
+
+  // Datos del que consulta
+  name       String
+  email      String
+  phone      String?
+
+  // Contenido
+  subject    String
+  message    String
+
+  // Estado
+  status     InquiryStatus @default(NEW)
+  
+  // Operador asignado (opcional)
+  assignedTo String?
+  
+  // Respuesta del operador
+  response   String?
+  respondedAt DateTime?
+  
+  // Timestamps
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  // Relación (el operador que responde)
+  user User? @relation(fields: [assignedTo], references: [id])
+
+  @@index([status])
+  @@index([createdAt])
+}

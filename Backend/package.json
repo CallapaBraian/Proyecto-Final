@@ -1,0 +1,45 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Backend del Proyecto Final (Hotel.ar) — Express + Prisma + Supabase",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "author": "Braian Callapa",
+  "license": "ISC",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "prisma:generate": "prisma generate",
+    "prisma:create-only": "prisma migrate dev --create-only -n init",
+    "prisma:migrate": "prisma migrate dev -n init",
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:studio": "prisma studio --schema prisma/schema.prisma",
+    "studio:pooler": "cross-env PRISMA_DISABLE_PREPARED_STATEMENTS=true prisma studio --schema prisma/schema.prisma --port 5556",
+    "seed:admin": "node scripts/seed-admin.js",
+    "seed:all": "node scripts/seed-all.js",
+    "seed:complete": "node scripts/seed-complete.js",
+    "seed": "prisma db seed",
+    "update:images": "node scripts/update-room-images.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.17.1",
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "google-auth-library": "^10.5.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.1",
+    "react-hot-toast": "^2.6.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "nodemon": "^3.1.10",
+    "prisma": "^6.17.1"
+  },
+  "prisma": {
+    "seed": "node scripts/seed-all.js"
+  }
+}

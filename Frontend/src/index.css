@@ -1,0 +1,144 @@
+/* src/index.css */
+
+/* ------------------------------------------------------------
+ 🏨 Hotel.ar — Tema Azul + Dorado (Premium clásico)
+-------------------------------------------------------------*/
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ----------- Variables de color ----------- */
+:root {
+  --color-bg: #0f172a;            /* azul muy oscuro */
+  --color-bg-secondary: #1e293b;
+  --color-border: #334155;
+  --color-text: #f8fafc;
+  --color-muted: #cbd5e1;
+
+  /* Tonos principales (Azul + Dorado) */
+  --color-brand: #eab308;        /* dorado */
+  --color-brand-light: #facc15;  /* dorado claro */
+  --color-brand-dark: #92400e;   /* bronce */
+}
+
+/* ----------- Base global ----------- */
+@layer base {
+  html, body {
+    @apply antialiased scroll-smooth;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+
+  /* Títulos */
+  h1, h2, h3, h4, h5 {
+    @apply font-semibold text-white;
+  }
+
+  /* Párrafos: usa color directo (no @apply con clase arbitraria) */
+  p {
+    color: rgb(248 250 252 / 0.9); /* var(--color-text) con 90% de opacidad */
+    @apply leading-relaxed;
+  }
+
+  a {
+    @apply transition-colors duration-300;
+    color: var(--color-brand-light);
+  }
+  a:hover {
+    color: var(--color-brand);
+  }
+}
+
+/* ----------- Componentes ----------- */
+@layer components {
+  .container-max { @apply max-w-6xl mx-auto px-4; }
+
+  .card {
+    @apply rounded-2xl border p-5 shadow-md transition-all duration-300;
+    background: var(--color-bg-secondary);
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 rgba(0,0,0,0);
+  }
+  .card:hover {
+    box-shadow: 0 0 25px rgba(234,179,8,0.10);
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center rounded-xl font-semibold text-sm px-5 py-2.5 shadow transition-colors duration-300;
+    background: var(--color-brand);
+    color: #000;
+  }
+  .btn:hover {
+    background: var(--color-brand-light);
+    color: #000;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center rounded-xl font-medium px-4 py-2 transition-colors;
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+  }
+  .btn-outline:hover {
+    color: var(--color-brand-light);
+    border-color: var(--color-brand);
+  }
+
+  .input {
+    @apply w-full rounded-xl px-3 py-2 text-sm outline-none transition-all;
+    background: var(--color-bg-secondary);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+  }
+  .input:focus {
+    border-color: var(--color-brand);
+    box-shadow: 0 0 0 1px var(--color-brand);
+  }
+
+  .label { @apply text-sm font-medium mb-1 block; color: var(--color-muted); }
+
+  nav {
+    @apply sticky top-0 z-50 border-b backdrop-blur;
+    background: color-mix(in oklab, var(--color-bg) 80%, transparent);
+    border-color: var(--color-border);
+  }
+  nav a { color: var(--color-muted); }
+  nav a:hover { color: var(--color-brand-light); }
+  nav a.active { @apply font-medium; color: var(--color-brand-light); }
+
+  footer {
+    @apply text-center text-sm py-6 mt-10 border-t;
+    background: var(--color-bg);
+    border-color: var(--color-border);
+    color: var(--color-muted);
+  }
+}
+
+/* ----------- Utilidades ----------- */
+@layer utilities {
+  .glow {
+    animation: glow 3s ease-in-out infinite;
+  }
+}
+
+/* ----------- Animaciones ----------- */
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(234,179,8,0.3), 0 0 25px rgba(234,179,8,0.15);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(234,179,8,0.4), 0 0 35px rgba(234,179,8,0.25);
+  }
+}
+
+/* ----------- Scrollbar ----------- */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #b45309; border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: #eab308; }
+
+/* ----------- Responsive ----------- */
+@media (max-width: 640px) {
+  h1 { @apply text-3xl; }
+  .btn, .btn-outline { @apply w-full text-center; }
+}

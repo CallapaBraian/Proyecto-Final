@@ -1,0 +1,52 @@
+# Environment variables - NUNCA SUBIR
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+
+# Dependencies
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+.vite/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Testing
+coverage/
+.nyc_output/
+
+# Prisma
+prisma/*.db
+prisma/*.db-journal
+prisma/migrations/.cache
+
+# Local files
+IMAGENES_HABITACIONES/
+*.bak
+*.tmp
+.cache/
+
+# Supabase
+supabase/migrations/
+
+# Logs
+logs/
+*.log
