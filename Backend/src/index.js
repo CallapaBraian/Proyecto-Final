@@ -50,6 +50,9 @@ app.use(
 app.use(express.json({ limit: "1mb" }));
 app.use(morgan("dev"));
 
+// Servir imágenes estáticas locales (fallback)
+app.use("/images", express.static("public/images"));
+
 // =============================
 //  System Status
 // =============================

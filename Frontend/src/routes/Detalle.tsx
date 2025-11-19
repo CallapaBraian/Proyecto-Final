@@ -30,6 +30,7 @@ export default function Detalle() {
 
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
 
   const [checkin, setCheckin] = useState("");
   const [checkout, setCheckout] = useState("");
@@ -42,11 +43,13 @@ export default function Detalle() {
     if (!id) return;
 
     const ctrl = new AbortController();
+    const timeoutId = setTimeout(() => ctrl.abort(), 30000); // 30 segundos timeout
 
     (async () => {
       const t = toast.loading("Cargando habitación…");
       try {
         setLoading(true);
+        setImageError(false);
 
         const res = await fetch(`${API_URL}/rooms/${id}`, {
           signal: ctrl.signal,
@@ -56,18 +59,36 @@ export default function Detalle() {
 
         if (!res.ok) throw new Error(j.error || "No se encontró la habitación");
 
-        setRoom(j.data || j);
+        // Si la URL es de GitHub y genera error, usar URL local como fallback
+        let roomData = j.data || j;
+        if (roomData.imageUrl && roomData.imageUrl.includes('github')) {
+          // Reemplazar con URL local como fallback
+          const imageName = roomData.imageUrl.split('/').pop(); // obtener nombre del archivo
+          if (imageName) {
+            roomData.imageUrl = `${API_URL}/images/${imageName}`;
+          }
+        }
+
+        setRoom(roomData);
 
         toast.success("Habitación cargada", { id: t });
       } catch (err: any) {
-        toast.error(err.message || "Error cargando habitación", { id: t });
+        if (err.name === 'AbortError') {
+          toast.error("Tiempo de carga agotado", { id: t });
+        } else {
+          toast.error(err.message || "Error cargando habitación", { id: t });
+        }
         setRoom(null);
       } finally {
         setLoading(false);
+        clearTimeout(timeoutId);
       }
     })();
 
-    return () => ctrl.abort();
+    return () => {
+      ctrl.abort();
+      clearTimeout(timeoutId);
+    };
   }, [id]);
 
   // =========================
@@ -163,9 +184,12 @@ export default function Detalle() {
                 src={room.imageUrl}
                 alt={room.name}
                 className="w-full h-72 object-cover"
+                onError={() => setImageError(true)}
               />
             ) : (
-              <div className="h-72 bg-gradient-to-br from-blue-700 to-blue-900" />
+              <div className="h-72 bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center">
+                <span className="text-slate-400">Sin imagen</span>
+              </div>
             )}
           </div>
 
