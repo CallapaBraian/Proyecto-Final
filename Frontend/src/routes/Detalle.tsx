@@ -38,6 +38,7 @@ export default function Detalle() {
 
   // AbortController para cancelar requests
   const abortCtrlRef = useRef<AbortController | null>(null);
+  const toastIdRef = useRef<string | null>(null);
 
   // =========================
   // Cargar habitación
