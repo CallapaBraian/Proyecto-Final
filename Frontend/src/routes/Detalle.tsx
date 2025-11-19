@@ -1,5 +1,5 @@
 // src/routes/Detalle.tsx
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useBooking } from "../context/BookingContext";
@@ -36,19 +36,31 @@ export default function Detalle() {
   const [checkout, setCheckout] = useState("");
   const [disponible, setDisponible] = useState<boolean | null>(null);
 
+  // AbortController para cancelar requests
+  const abortCtrlRef = useRef<AbortController | null>(null);
+
   // =========================
   // Cargar habitación
   // =========================
   useEffect(() => {
     if (!id) return;
 
+    // Cancelar request anterior si existe
+    if (abortCtrlRef.current) {
+      abortCtrlRef.current.abort();
+    }
+
+    // Crear nuevo controller
     const ctrl = new AbortController();
+    abortCtrlRef.current = ctrl;
 
     (async () => {
+      // Solo mostrar toast si no fue cancelado
       const t = toast.loading("Cargando habitación…");
       try {
         setLoading(true);
         setImageError(false);
+        setRoom(null); // Limpiar habitación anterior
 
         const res = await fetch(`${API_URL}/rooms/${id}`, {
           signal: ctrl.signal,
@@ -62,22 +74,27 @@ export default function Detalle() {
         let roomData = j.data || j;
         if (roomData.imageUrl && roomData.imageUrl.includes('github')) {
           // Reemplazar con URL local como fallback
-          const imageName = roomData.imageUrl.split('/').pop(); // obtener nombre del archivo
+          const imageName = roomData.imageUrl.split('/').pop();
           if (imageName) {
             roomData.imageUrl = `${API_URL}/images/${imageName}`;
           }
         }
 
-        setRoom(roomData);
-
-        toast.success("Habitación cargada", { id: t });
+        // Solo actualizar si no fue cancelado
+        if (!ctrl.signal.aborted) {
+          setRoom(roomData);
+          toast.success("Habitación cargada", { id: t });
+        }
       } catch (err: any) {
-        if (err.name !== 'AbortError') {
+        // Solo mostrar error si no fue cancelado
+        if (err.name !== 'AbortError' && !ctrl.signal.aborted) {
           toast.error(err.message || "Error cargando habitación", { id: t });
         }
         setRoom(null);
       } finally {
-        setLoading(false);
+        if (!ctrl.signal.aborted) {
+          setLoading(false);
+        }
       }
     })();
 
