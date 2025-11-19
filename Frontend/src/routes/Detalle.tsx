@@ -43,7 +43,6 @@ export default function Detalle() {
     if (!id) return;
 
     const ctrl = new AbortController();
-    const timeoutId = setTimeout(() => ctrl.abort(), 30000); // 30 segundos timeout
 
     (async () => {
       const t = toast.loading("Cargando habitación…");
@@ -73,21 +72,17 @@ export default function Detalle() {
 
         toast.success("Habitación cargada", { id: t });
       } catch (err: any) {
-        if (err.name === 'AbortError') {
-          toast.error("Tiempo de carga agotado", { id: t });
-        } else {
+        if (err.name !== 'AbortError') {
           toast.error(err.message || "Error cargando habitación", { id: t });
         }
         setRoom(null);
       } finally {
         setLoading(false);
-        clearTimeout(timeoutId);
       }
     })();
 
     return () => {
       ctrl.abort();
-      clearTimeout(timeoutId);
     };
   }, [id]);
 
